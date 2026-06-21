@@ -20,9 +20,7 @@ async def test_capture_saves_and_returns_pending(client, db_session):
     assert data["task_ids"] == []
 
     row = (
-        await db_session.execute(
-            select(Capture).where(Capture.id == data["capture_id"])
-        )
+        await db_session.execute(select(Capture).where(Capture.id == data["capture_id"]))
     ).scalar_one()
     assert row.raw_text == "buy milk"
     assert row.source == "voice"
