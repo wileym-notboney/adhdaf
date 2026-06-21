@@ -1,130 +1,101 @@
-# CLAUDE.md — ADHD Productivity System
+# CLAUDE.md — adhdaf
 
-> Purpose: orient any new Claude session on this project. It explains **what the
-> user is trying to do, what has been tried (and abandoned) so far, what was ruled
-> out and why, and the open decisions to resolve next.** Read this fully before
-> planning or building.
-
-_Last updated: 2026-06-18_
+_Last updated: 2026-06-21_
 
 ---
 
-## 1. Who I am (the user)
+## What This Is
 
-- I have ADHD. My three hardest struggles, in order: **starting tasks**,
-  **remembering / follow-through**, and **distraction / focus**.
-- I'm a **beginner** with code and technical setup. Explain in plain terms, use
-  analogies, don't assume jargon.
-- Keep answers **concise and direct**.
-- I like documentation captured as clear, indexable docs.
+A low-friction ADHD productivity system: **Capture → Clean → Store/See.**
 
-### Design principle that must guide everything
-The #1 failure mode for ADHD tools is that *setting them up becomes a new
-procrastination project*. Favor the **smallest thing that reduces friction** over
-anything elaborate. A plain tool I actually use beats a fancy one I abandon.
-Capture must be effortless; the system should come **to** me, not wait to be checked.
+1. **Capture** a messy thought via voice, phone, browser, or CLI.
+2. **Clean** it automatically with Claude Haiku into a structured task.
+3. **See** it on a billboard display or kanban board.
+
+The #1 design constraint: if capture is harder than grabbing a notebook, it dies.
+Favor the smallest thing that reduces friction over anything elaborate.
 
 ---
 
-## 2. The goal
+## Who panda boss Is
 
-A low-friction loop: **Capture → Clean → Store/See.**
-
-1. **Capture** a messy thought with near-zero effort, from phone or computer.
-2. **Clean** it automatically with AI into a clear, manageable task.
-3. It lands somewhere I can manage and glance at it.
-
-### Current chosen direction
-A **very minimal input system that leverages the Claude API (Haiku model)** to do
-the cleaning. Haiku is fast and cheap — well-suited to turning a raw dump into
-structured tasks. The **storage backend is being decided and is NO LONGER Notion**
-(see §6).
+- Has ADHD. Hardest struggles: starting tasks, remembering/follow-through, focus.
+- Beginner with code. Explain in plain terms, no jargon.
+- Concise and direct answers only.
 
 ---
 
-## 3. Project history — what's been tried
+## Tech Stack
 
-**Iteration 0 — abandoned.**
-Path: `/Users/skeletor/DEV/claude-apps/productivty-tool`
-An earlier attempt at this project that was started and then abandoned. _(Its
-contents were not reviewed in this session — that folder is not mounted here.
-Revisit it directly for any salvageable code, ideas, or lessons before rebuilding.)_
+Python FastAPI + SQLite + Jinja2/HTMX + SortableJS. One process, zero build steps.
 
-**Iteration 1 — Notion-based (now being moved away from).**
-Built in Notion: a `Brain Dump — ADHD Command Center` database with a Kanban board
-(workspace + monitor display), a capture Form view, a Cowork "Capture Box" HTML
-artifact that cleaned dumps on intake, and a guide page. **Decision: Notion will no
-longer be the manager/backend.** These assets still exist (see §7) for reference or
-migration only — treat them as deprecated.
-
-**Iteration 2 — current (this workspace).**
-Path: `/Users/skeletor/DEV/claude-apps/adhdaf`
-Building the minimal Haiku-powered input system with a yet-to-be-decided backend.
+| Layer | Choice |
+|-------|--------|
+| Backend | FastAPI + uvicorn |
+| Database | SQLite (aiosqlite) via SQLAlchemy async |
+| Frontend | Jinja2 templates + HTMX |
+| AI cleaning | Anthropic SDK (`claude-haiku-4-5-20251001`) |
+| Notifications | Apprise |
+| Auth | Bearer tokens (`CAPTURE_TOKEN` / `ADMIN_TOKEN`) |
+| Port | 1738 |
 
 ---
 
-## 4. Decisions & dead-ends (don't re-pitch)
+## Commands
 
-- **Notion dropped** as the backend / where tasks are managed.
-- **Plain browser page reading/writing a cloud app directly** → blocked by browser
-  security (CORS). Needs a bridge or a server/API in between.
-- **Apple Shortcuts "Ask Claude" action → write to an app** → the action only
-  *returns an answer*; it can't run connectors/tools, so it can't file tasks on its
-  own. Hands-free "Hey Siri → app" via this action is a dead end.
-- **Scheduled nightly "tidy" job** → rejected. Cleaning must happen **on intake**,
-  not in a batch.
-- **Confirmed working:** the Claude iOS app + a connector reliably writes tasks
-  (this is why the Haiku-API path is promising).
+```bash
+# Dev server
+uv run fastapi dev --port 1738
+
+# Tests
+uv run pytest
+
+# Lint
+uv run ruff check . && uv run ruff format --check .
+```
 
 ---
 
-## 5. Capture operating spec (storage-agnostic structuring rules)
+## Project Status
 
-When given a brain dump: **clean it and file it automatically, then report what you
-did** (minimal back-and-forth).
+**Slice 0 — Skeleton**: ✅ Done. FastAPI app, SQLite + migrations, auth,
+health endpoint, vendored static assets, test fixtures.
 
-- Produce the **smallest number of clear, manageable tasks**. Do **not** shred one
+**Next up**: Slice 1 — Capture (all input paths).
+
+---
+
+## Docs
+
+| Doc | What's in it |
+|-----|-------------|
+| [docs/v0_spec.md](docs/v0_spec.md) | Full technical spec — architecture, data model, AI rules, API surface, directory layout |
+| [docs/implementation_slices.md](docs/implementation_slices.md) | Ordered build plan with gates. Current progress tracked here |
+| [docs/manual_test.md](docs/manual_test.md) | Per-slice manual test checklists |
+| [docs/later_backlog.md](docs/later_backlog.md) | Deferred features (kanban, reminders, polish) + dead ends + legacy Notion refs |
+
+---
+
+## Capture Operating Spec
+
+When given a brain dump: **clean it and file it automatically, then report
+what you did** (minimal back-and-forth).
+
+- Produce the **smallest number of clear, manageable tasks**. Don't shred one
   thought into many tiny tasks.
-- **Group related steps into ONE task** with a checklist in the notes; only split
-  genuinely unrelated things.
+- **Group related steps into ONE task** with a checklist; only split genuinely
+  unrelated things.
 - Short, **action-first titles** (start with a verb); fix typos.
-- **Pull out dates/deadlines** into a due-date field (resolve relative dates like
-  "Friday", "the 30th", "today" against the current date).
-- **Guess priority** from language, urgency, timing, and the risk/impact of missing
-  the due date (High / Medium / Low).
-- Default status = the backend's equivalent of **"to do."**
-
-Example: *"plan mom's birthday next sat — book restaurant, invite family, order
-cake"* → **one** task "Plan Mom's birthday dinner", due that Saturday, with the
-three steps as a checklist in notes. Not three+ separate tasks.
+- **Pull out dates/deadlines** into a due-date field (resolve relative dates
+  against today).
+- **Guess priority** from language, urgency, timing (High / Medium / Low).
+- Default status = **inbox**.
 
 ---
 
-## 6. Open decisions to resolve next (plan & build)
+## Decisions (don't re-pitch)
 
-1. **Backend — where do tasks live now that it's not Notion?** Options on the table:
-   a simple **local file** (Markdown/JSON in this workspace), a **custom lightweight
-   app** we build, or **another existing app** (Reminders/Things/Todoist/etc.).
-   _UNDECIDED._
-2. **Display — still want an always-on monitor board/timeline, or just capture + a
-   simple list?** _UNDECIDED._
-3. **Pipeline:** raw text → Claude API (Haiku) cleans per §5 → write to the chosen
-   backend.
-4. **Phone path:** given the Shortcut dead end, pick the practical phone capture.
-5. **Reminders:** how time-sensitive items nudge me.
-
-Keep each step the smallest viable version. Build, let me use it, then iterate.
-
----
-
-## 7. Legacy reference — deprecated Notion assets (migration only)
-
-Kept in case we want to pull old tasks out before fully leaving Notion:
-- Database: `Brain Dump — ADHD Command Center`
-- Database ID: `9415814a37c54729abebe28cf32ed8f3`
-- Data source ID: `717cbd15-c3a3-4aad-8ee3-aaead172d66b`
-- Schema: `Task` (title), `Status` (To Do / In Progress / Completed / Overdue /
-  Archive), `Priority` (High / Medium / Low), `Do date` (date), `Notes` (text),
-  `Created` (auto).
-- Guide page ID: `3820f81a-9666-8104-bbe9-d0ea52cefcb6`
-- Cowork artifact id: `adhd-command-center` (the old Capture Box).
+- Notion dropped as backend.
+- Apple Shortcuts "Ask Claude" action is a dead end (can't run tools).
+- Cleaning happens on intake, not in a nightly batch.
+- Browser-direct-to-cloud blocked by CORS — server required.

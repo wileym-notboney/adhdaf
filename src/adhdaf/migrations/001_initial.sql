@@ -46,4 +46,4 @@ CREATE TABLE IF NOT EXISTS nudges (
     sent_at DATETIME,
     dismissed_at DATETIME,
     expires_at DATETIME
-)
+);
