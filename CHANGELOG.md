@@ -9,8 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - `POST /api/capture` endpoint with bearer token auth, validation, and persistence
 - Capture route module (`src/adhdaf/routes/capture.py`)
-- 6 route tests covering auth, validation, and happy-path persistence
-- Slice 1 design doc: `docs/superpowers/specs/2026-06-21-slice-1-capture-design.md`
+- `save_capture()` service (`src/adhdaf/services/capture_service.py`) — stores raw captures with `status=pending`
+- `CaptureRequest` validation: non-empty `raw`, `source` constrained to web/voice/cli/api (default voice)
+- Route + service tests (11 new) covering auth, validation, and end-to-end persistence
+- Apple Shortcut voice-capture setup guide: `docs/apple_shortcut.md`
+- Slice 1 design doc + implementation plan under `docs/superpowers/`
 - SQLite pragmas: WAL mode, busy_timeout (5s), foreign_keys enforcement
 - `create_app_engine()` factory for reusable engine setup with pragmas
 - `ensure_db_directory()` creates data dir from DATABASE_URL on startup
