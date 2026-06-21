@@ -1,13 +1,22 @@
 # ABOUTME: Pydantic models for API request/response validation.
 # ABOUTME: Shared between routes — keeps serialization rules in one place.
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class CaptureRequest(BaseModel):
     raw: str
-    source: str = "web"
+    source: Literal["web", "voice", "cli", "api"] = "voice"
+
+    @field_validator("raw")
+    @classmethod
+    def raw_must_not_be_blank(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("raw must not be empty")
+        return stripped
 
 
 class CaptureResponse(BaseModel):

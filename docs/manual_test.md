@@ -48,10 +48,12 @@ regressions; this catches "it works but feels wrong."
 - [ ] Reload page — form is clear, ready for next dump
 
 ### 1c. Voice capture (Apple Shortcut)
-- [ ] "Hey Siri, brain dump" triggers shortcut
-- [ ] Dictate a messy thought
-- [ ] Shortcut shows confirmation
-- [ ] Task appears in DB
+- [ ] Build the **Brain Dump** shortcut per `docs/apple_shortcut.md`.
+- [ ] Run it: "Hey Siri, Brain Dump" → speak a thought.
+- [ ] Confirm the Shortcut shows a result containing a `capture_id`.
+- [ ] Query the DB and confirm a row exists in `captures` with
+      `source="voice"` and `status="pending"`:
+      `sqlite3 data/adhdaf.db "SELECT raw_text, source, status FROM captures ORDER BY created_at DESC LIMIT 1;"`
 
 ### 1d. CLI capture
 - [ ] `brain "messy thought"` from terminal
