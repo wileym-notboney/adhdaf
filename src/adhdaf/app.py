@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from adhdaf.database import ensure_db_directory, run_migrations
+from adhdaf.routes.capture import router as capture_router
 from adhdaf.routes.health import router as health_router
 
 
@@ -17,3 +18,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="adhdaf", version="0.1.0", lifespan=lifespan)
 app.include_router(health_router)
+app.include_router(capture_router)

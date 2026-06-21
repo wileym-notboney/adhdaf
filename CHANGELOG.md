@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `POST /api/capture` endpoint with bearer token auth, validation, and persistence
+- Capture route module (`src/adhdaf/routes/capture.py`)
+- 6 route tests covering auth, validation, and happy-path persistence
 - Slice 1 design doc: `docs/superpowers/specs/2026-06-21-slice-1-capture-design.md`
 - SQLite pragmas: WAL mode, busy_timeout (5s), foreign_keys enforcement
 - `create_app_engine()` factory for reusable engine setup with pragmas
