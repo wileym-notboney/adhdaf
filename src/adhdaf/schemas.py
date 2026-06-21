@@ -1,3 +1,5 @@
+# ABOUTME: Pydantic models for API request/response validation.
+# ABOUTME: Shared between routes — keeps serialization rules in one place.
 from datetime import datetime
 
 from pydantic import BaseModel

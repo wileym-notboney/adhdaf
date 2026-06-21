@@ -1,3 +1,5 @@
+-- ABOUTME: Initial database schema — creates captures, tasks, and nudges tables.
+-- ABOUTME: Includes a partial unique index enforcing one focus task at a time.
 CREATE TABLE IF NOT EXISTS captures (
     id TEXT PRIMARY KEY,
     raw_text TEXT NOT NULL,

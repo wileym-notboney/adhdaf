@@ -1,3 +1,5 @@
+# ABOUTME: SQLAlchemy ORM models for tasks, captures, and nudges.
+# ABOUTME: Defines the database schema — Capture holds raw input, Task holds cleaned output.
 import uuid
 from datetime import datetime
 

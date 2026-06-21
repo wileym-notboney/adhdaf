@@ -1,3 +1,5 @@
+# ABOUTME: Command-line interface for maintenance tasks.
+# ABOUTME: Currently supports database backup with automatic rotation (keeps 30).
 import argparse
 import shutil
 import sys

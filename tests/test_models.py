@@ -1,3 +1,5 @@
+# ABOUTME: Tests for SQLAlchemy models — Capture and Task creation and linking.
+# ABOUTME: Uses in-memory SQLite to verify defaults, relationships, and constraints.
 import pytest
 from sqlalchemy import select
 

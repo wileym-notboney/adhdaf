@@ -1,3 +1,5 @@
+# ABOUTME: App configuration via environment variables and .env file.
+# ABOUTME: Uses pydantic-settings for typed config with sensible defaults.
 from pydantic_settings import BaseSettings
 
 
@@ -10,7 +12,7 @@ class Settings(BaseSettings):
     capture_token: str = "change-me-to-a-random-secret"
     admin_token: str = "change-me-to-a-different-secret"
     apprise_urls: str = ""
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 1738
 
 

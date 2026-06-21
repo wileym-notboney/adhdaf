@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>adhdaf — Tech Stack Map</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0f0f0f;
+    color: #e0e0e0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 1fr auto;
+    height: 100vh;
+  }
+  .sidebar {
+    grid-row: 1 / 3;
+    background: #1a1a1a;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+    padding: 16px;
+  }
+  .sidebar h1 {
+    font-size: 16px;
+    color: #f59e0b;
+    margin-bottom: 4px;
+  }
+  .sidebar .subtitle {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    margin: 16px 0 8px;
+  }
+  .preset-btn {
+    display: block;
+    width: 100%;
+    padding: 7px 10px;
+    margin-bottom: 4px;
+    background: #252525;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover { background: #303030; border-color: #555; }
+  .preset-btn.active { background: #2a2215; border-color: #f59e0b; color: #f59e0b; }
+  .layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .layer-toggle input { accent-color: #f59e0b; }
+  .layer-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .detail-panel {
+    background: #1f1f1f;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .detail-panel.visible { display: block; }
+  .detail-panel h3 {
+    font-size: 14px;
+    color: #f59e0b;
+    margin-bottom: 2px;
+  }
+  .detail-panel .tech-role {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 10px;
+  }
+  .detail-panel .pro-con-section { margin-bottom: 8px; }
+  .detail-panel .pro-con-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .detail-panel .pro-con-title.pro { color: #34d399; }
+  .detail-panel .pro-con-title.con { color: #f87171; }
+  .detail-panel ul {
+    list-style: none;
+    padding: 0;
+  }
+  .detail-panel li {
+    font-size: 12px;
+    padding: 2px 0;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .detail-panel li::before {
+    position: absolute;
+    left: 0;
+    font-size: 10px;
+  }
+  .detail-panel li.pro::before { content: '✓'; color: #34d399; }
+  .detail-panel li.con::before { content: '✗'; color: #f87171; }
+  .detail-panel .alt {
+    font-size: 11px;
+    color: #777;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  .canvas-area {
+    position: relative;
+    overflow: hidden;
+    background: #0f0f0f;
+  }
+  .canvas-area svg {
+    width: 100%;
+    height: 100%;
+  }
+  .zoom-controls {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 4px;
+  }
+  .zoom-btn {
+    width: 32px;
+    height: 32px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .zoom-btn:hover { background: #252525; }
+  .prompt-area {
+    background: #1a1a1a;
+    border-top: 1px solid #333;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    max-height: 140px;
+  }
+  .prompt-text {
+    flex: 1;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.5;
+    overflow-y: auto;
+    max-height: 110px;
+    white-space: pre-wrap;
+  }
+  .copy-btn {
+    padding: 6px 14px;
+    background: #f59e0b;
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .copy-btn:hover { background: #fbbf24; }
+  .copy-btn.copied { background: #34d399; }
+  .legend {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: #1a1a1acc;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 10px;
+  }
+  .legend-title {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 6px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    color: #999;
+  }
+  .legend-line {
+    width: 24px;
+    height: 2px;
+  }
+  .flow-label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #1a1a1acc;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #f59e0b;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <h1>adhdaf tech stack</h1>
+    <div class="subtitle">Click any technology node for pros, cons, and alternatives</div>
+
+    <div class="section-title">Views</div>
+    <button class="preset-btn active" onclick="setPreset('full')">Full Stack</button>
+    <button class="preset-btn" onclick="setPreset('capture')">Capture Pipeline</button>
+    <button class="preset-btn" onclick="setPreset('backend')">Backend Only</button>
+    <button class="preset-btn" onclick="setPreset('frontend')">Frontend Only</button>
+    <button class="preset-btn" onclick="setPreset('ai')">AI + Data Flow</button>
+
+    <div class="section-title">Layers</div>
+    <div id="layer-toggles"></div>
+
+    <div class="section-title">Connections</div>
+    <div id="connection-toggles"></div>
+
+    <div id="detail-panel" class="detail-panel"></div>
+  </div>
+
+  <div class="canvas-area">
+    <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoom(1.2)">+</button>
+      <button class="zoom-btn" onclick="zoom(0.8)">−</button>
+      <button class="zoom-btn" onclick="resetZoom()">⌂</button>
+    </div>
+    <div id="flow-label" class="flow-label">Full Stack</div>
+    <div class="legend">
+      <div class="legend-title">Connection Types</div>
+      <div id="legend-items"></div>
+    </div>
+  </div>
+
+  <div class="prompt-area">
+    <div id="prompt" class="prompt-text">Click a technology to see details and generate a prompt.</div>
+    <button class="copy-btn" onclick="copyPrompt()">Copy</button>
+  </div>
+</div>
+
+<script>
+const LAYERS = {
+  capture:  { label: 'Capture Input',  color: '#dbeafe', stroke: '#3b82f6' },
+  server:   { label: 'Server / API',   color: '#fef3c7', stroke: '#f59e0b' },
+  data:     { label: 'Data Layer',     color: '#fce7f3', stroke: '#ec4899' },
+  frontend: { label: 'Frontend / UI',  color: '#dcfce7', stroke: '#10b981' },
+  ai:       { label: 'AI / Cleaning',  color: '#f3e8ff', stroke: '#8b5cf6' },
+  infra:    { label: 'Infrastructure', color: '#e0e7ff', stroke: '#6366f1' },
+};
+
+const CONN_TYPES = {
+  'http':       { label: 'HTTP Request',    color: '#3b82f6', dash: '' },
+  'data-flow':  { label: 'Data Flow',       color: '#f59e0b', dash: '' },
+  'renders':    { label: 'Renders / Serves', color: '#10b981', dash: '6,3' },
+  'api-call':   { label: 'API Call',        color: '#8b5cf6', dash: '6,3' },
+  'pushes':     { label: 'Push / Notify',   color: '#ef4444', dash: '4,4' },
+};
+
+const nodes = [
+  // Capture layer
+  { id: 'siri', label: 'Apple Shortcut', subtitle: '"Hey Siri, brain dump"', x: 60, y: 40, w: 150, h: 50, layer: 'capture',
+    role: 'Voice capture via Siri → HTTP POST',
+    pros: ['Zero-friction voice capture', 'Works from lock screen', 'No app to build or maintain'],
+    cons: ['iOS/macOS only', 'Dictation accuracy varies', 'Requires Tailscale for remote access'],
+    alt: 'Alternatives: Tasker (Android), custom voice app'
+  },
+  { id: 'pwa', label: 'PWA', subtitle: 'Home screen web app', x: 260, y: 40, w: 150, h: 50, layer: 'capture',
+    role: 'Phone/tablet typed capture via browser',
+    pros: ['One-tap from home screen', 'Works on any device with a browser', 'No App Store review process'],
+    cons: ['iOS Safari PWA support is limited', 'No offline queue yet (Phase 6)', 'Needs HTTPS (Tailscale provides this)'],
+    alt: 'Alternatives: native app (heavy), Telegram bot'
+  },
+  { id: 'browser', label: 'Browser Tab', subtitle: 'Pinned /capture tab', x: 460, y: 40, w: 150, h: 50, layer: 'capture',
+    role: 'Desktop capture via browser tab or Raycast',
+    pros: ['Always available on desktop', 'Zero setup', 'Raycast quicklink for power users'],
+    cons: ['Requires browser open', 'Tab can get lost among many'],
+    alt: 'Alternatives: Raycast extension, menubar app'
+  },
+  { id: 'cli', label: 'curl / shell alias', subtitle: 'brain "messy thought"', x: 660, y: 40, w: 150, h: 50, layer: 'capture',
+    role: 'Terminal capture for devs',
+    pros: ['Fastest path for terminal users', 'Scriptable and composable', 'Works over SSH'],
+    cons: ['Not for non-technical users', 'No rich input (just plain text)'],
+    alt: 'Alternatives: dedicated CLI tool with prompts'
+  },
+
+  // Server layer
+  { id: 'fastapi', label: 'FastAPI', subtitle: 'Python async web framework', x: 220, y: 170, w: 170, h: 55, layer: 'server',
+    role: 'HTTP server — handles all API and page routes',
+    pros: ['Async by default (good for I/O-bound work)', 'Auto-generates OpenAPI docs', 'Type-safe with Pydantic', 'Already known from network-sentry'],
+    cons: ['Python GIL limits CPU parallelism', 'Ecosystem smaller than Express/Django', 'uvicorn reload can be flaky'],
+    alt: 'Alternatives: Django (heavier), Flask (no async), Express (JS)'
+  },
+  { id: 'uvicorn', label: 'uvicorn', subtitle: 'ASGI server', x: 460, y: 170, w: 150, h: 55, layer: 'server',
+    role: 'Runs the FastAPI app, handles HTTP connections',
+    pros: ['Fast, production-ready', 'Hot reload in dev mode', 'Standard ASGI — swappable'],
+    cons: ['Single-worker by default (fine for personal use)', 'Needs gunicorn wrapper for multi-worker prod'],
+    alt: 'Alternatives: hypercorn, granian, daphne'
+  },
+  { id: 'pydantic', label: 'Pydantic', subtitle: 'Validation + settings', x: 60, y: 170, w: 150, h: 55, layer: 'server',
+    role: 'Request/response validation and .env config loading',
+    pros: ['Catches bad input before it hits business logic', 'pydantic-settings reads .env automatically', 'Great error messages'],
+    cons: ['V2 migration broke some V1 patterns', 'Overhead for very simple models'],
+    alt: 'Alternatives: attrs, dataclasses (no validation), marshmallow'
+  },
+
+  // Frontend layer
+  { id: 'jinja2', label: 'Jinja2', subtitle: 'Server-side templates', x: 60, y: 310, w: 150, h: 55, layer: 'frontend',
+    role: 'Renders HTML pages — board, capture, billboard',
+    pros: ['No build step, no node_modules', 'Templates are just HTML files', 'Familiar Django-like syntax'],
+    cons: ['No component model (copy-paste partials)', 'No client-side state management', 'Harder to do complex interactivity'],
+    alt: 'Alternatives: React (heavy), HTMX is the interactivity layer'
+  },
+  { id: 'htmx', label: 'HTMX', subtitle: 'HTML-over-the-wire', x: 260, y: 310, w: 150, h: 55, layer: 'frontend',
+    role: 'Makes HTML pages interactive without writing JavaScript',
+    pros: ['10KB, zero build step', 'Server returns HTML fragments, not JSON', 'Progressive enhancement — works without JS', 'Perfect for CRUD apps'],
+    cons: ['Not suited for complex client-side state', 'Debugging is less visible than React DevTools', 'Smaller community than React/Vue'],
+    alt: 'Alternatives: React (SPA), Alpine.js (more JS control), Turbo'
+  },
+  { id: 'sortablejs', label: 'SortableJS', subtitle: 'Drag-and-drop library', x: 460, y: 310, w: 150, h: 55, layer: 'frontend',
+    role: 'Enables drag-drop reordering on the kanban board',
+    pros: ['10KB, framework-agnostic', 'Touch support (mobile)', 'Simple API — one init call'],
+    cons: ['No undo/redo built in', 'Accessibility (keyboard drag) needs extra work'],
+    alt: 'Alternatives: dnd-kit (React only), Dragula'
+  },
+  { id: 'css', label: 'Custom CSS', subtitle: 'Dark theme, no framework', x: 660, y: 310, w: 150, h: 55, layer: 'frontend',
+    role: 'Styling — dark theme, billboard large-text, responsive',
+    pros: ['Zero dependencies', 'Full control over billboard readability', 'No class name bloat'],
+    cons: ['More manual work than Tailwind', 'No design tokens out of the box', 'Consistency requires discipline'],
+    alt: 'Alternatives: Tailwind (utility classes), Pico CSS (classless)'
+  },
+
+  // Data layer
+  { id: 'sqlite', label: 'SQLite', subtitle: 'Embedded database', x: 220, y: 450, w: 170, h: 55, layer: 'data',
+    role: 'Stores all tasks, captures, and nudges — single file',
+    pros: ['Zero infrastructure — one .db file', 'Fast for single-user workloads', 'Backup = copy a file', 'No separate process to manage'],
+    cons: ['No concurrent writers (fine for 1 user)', 'No built-in replication', 'Limited full-text search'],
+    alt: 'Alternatives: PostgreSQL (overkill for 1 user), DuckDB (analytics-focused)'
+  },
+  { id: 'sqlalchemy', label: 'SQLAlchemy 2.0', subtitle: 'Async ORM', x: 460, y: 450, w: 150, h: 55, layer: 'data',
+    role: 'Maps Python objects to database rows, runs queries',
+    pros: ['Async support with aiosqlite', 'Declarative models are readable', 'Migration-friendly schema definitions', 'Already known from network-sentry'],
+    cons: ['Complex API — easy to misuse async sessions', 'Heavy for simple queries', 'Alembic (migrations) has a learning curve'],
+    alt: 'Alternatives: raw SQL (fragile), Tortoise ORM (simpler async), Peewee'
+  },
+  { id: 'aiosqlite', label: 'aiosqlite', subtitle: 'Async SQLite driver', x: 60, y: 450, w: 150, h: 55, layer: 'data',
+    role: 'Lets SQLAlchemy talk to SQLite without blocking the event loop',
+    pros: ['Drop-in async wrapper', 'Keeps FastAPI non-blocking', 'Well-maintained'],
+    cons: ['Adds a thread pool layer (minor overhead)', 'SQLite itself is still synchronous under the hood'],
+    alt: 'Alternatives: databases library, direct sqlite3 (blocks async)'
+  },
+
+  // AI layer
+  { id: 'haiku', label: 'Claude Haiku', subtitle: 'claude-haiku-4-5-20251001', x: 260, y: 590, w: 170, h: 55, layer: 'ai',
+    role: 'Cleans messy brain dumps into structured tasks',
+    pros: ['~$0.001 per dump — practically free', 'Fast response (sub-second)', 'tool_use guarantees structured JSON output', 'Handles typos, slang, fragments well'],
+    cons: ['Requires internet (no offline cleaning)', 'API key management', 'Occasional over-splitting of related tasks'],
+    alt: 'Alternatives: GPT-4o-mini (similar tier), local LLM (offline but slower)'
+  },
+  { id: 'anthropic-sdk', label: 'Anthropic SDK', subtitle: 'Python client library', x: 60, y: 590, w: 160, h: 55, layer: 'ai',
+    role: 'Handles API auth, retries, and response parsing',
+    pros: ['Official SDK — stays current with API changes', 'Built-in retry logic', 'Typed responses'],
+    cons: ['Vendor lock-in to Anthropic', 'SDK updates can break things'],
+    alt: 'Alternatives: raw httpx calls, LiteLLM (multi-provider)'
+  },
+
+  // Infra layer
+  { id: 'tailscale', label: 'Tailscale', subtitle: 'Mesh VPN + MagicDNS', x: 460, y: 590, w: 160, h: 55, layer: 'infra',
+    role: 'Secure access from phone to Mac server without port forwarding',
+    pros: ['Zero-config VPN — just works', 'MagicDNS gives stable hostnames', 'HTTPS certificates included', 'Already on both Mac + iPhone'],
+    cons: ['Requires Tailscale app running on both devices', 'Adds a network hop (negligible latency)', 'Account dependency'],
+    alt: 'Alternatives: WireGuard (manual), Cloudflare Tunnel, ngrok'
+  },
+  { id: 'apprise', label: 'Apprise', subtitle: 'Multi-channel notifications', x: 660, y: 590, w: 150, h: 55, layer: 'infra',
+    role: 'Sends nudge reminders via Pushover, Discord, macOS, etc.',
+    pros: ['One library, 80+ notification services', 'Config via URL strings — no per-service code', 'Already known from network-sentry'],
+    cons: ['URL format is its own mini-language to learn', 'Some services have rate limits', 'Debugging delivery failures is opaque'],
+    alt: 'Alternatives: direct Pushover API, ntfy.sh (simpler)'
+  },
+  { id: 'uv', label: 'uv', subtitle: 'Python package manager', x: 660, y: 450, w: 150, h: 55, layer: 'infra',
+    role: 'Installs dependencies, runs commands, manages virtualenvs',
+    pros: ['10-100x faster than pip', 'Lockfile for reproducible installs', 'Single tool replaces pip + venv + pip-tools'],
+    cons: ['Young project — occasional edge cases', 'Not yet universal in CI environments'],
+    alt: 'Alternatives: pip + venv (slow), poetry (heavy), pdm'
+  },
+];
+
+const connections = [
+  // Capture → FastAPI
+  { from: 'siri', to: 'fastapi', type: 'http', label: 'POST /api/capture' },
+  { from: 'pwa', to: 'fastapi', type: 'http', label: 'POST /api/capture' },
+  { from: 'browser', to: 'fastapi', type: 'http', label: 'POST /api/capture' },
+  { from: 'cli', to: 'fastapi', type: 'http', label: 'POST /api/capture' },
+
+  // FastAPI internals
+  { from: 'fastapi', to: 'pydantic', type: 'data-flow', label: 'validates' },
+  { from: 'fastapi', to: 'uvicorn', type: 'data-flow', label: 'runs on' },
+
+  // FastAPI → Frontend
+  { from: 'fastapi', to: 'jinja2', type: 'renders', label: 'renders pages' },
+  { from: 'jinja2', to: 'htmx', type: 'renders', label: 'includes' },
+  { from: 'jinja2', to: 'sortablejs', type: 'renders', label: 'includes' },
+  { from: 'jinja2', to: 'css', type: 'renders', label: 'includes' },
+  { from: 'htmx', to: 'fastapi', type: 'http', label: 'partial requests' },
+
+  // FastAPI → Data
+  { from: 'fastapi', to: 'sqlalchemy', type: 'data-flow', label: 'queries via' },
+  { from: 'sqlalchemy', to: 'sqlite', type: 'data-flow', label: 'reads/writes' },
+  { from: 'sqlalchemy', to: 'aiosqlite', type: 'data-flow', label: 'async driver' },
+  { from: 'aiosqlite', to: 'sqlite', type: 'data-flow', label: 'wraps' },
+
+  // FastAPI → AI
+  { from: 'fastapi', to: 'anthropic-sdk', type: 'api-call', label: 'cleans dumps' },
+  { from: 'anthropic-sdk', to: 'haiku', type: 'api-call', label: 'tool_use call' },
+
+  // Capture paths via Tailscale
+  { from: 'siri', to: 'tailscale', type: 'http', label: 'MagicDNS' },
+  { from: 'pwa', to: 'tailscale', type: 'http', label: 'MagicDNS' },
+  { from: 'tailscale', to: 'fastapi', type: 'http', label: 'tunnels to localhost' },
+
+  // Notifications
+  { from: 'fastapi', to: 'apprise', type: 'pushes', label: 'sends nudges' },
+
+  // uv
+  { from: 'uv', to: 'fastapi', type: 'data-flow', label: 'runs' },
+];
+
+const PRESETS = {
+  full:    { label: 'Full Stack',       layers: Object.keys(LAYERS), conns: Object.keys(CONN_TYPES) },
+  capture: { label: 'Capture Pipeline', layers: ['capture', 'server', 'ai', 'infra'], conns: ['http', 'api-call', 'data-flow'] },
+  backend: { label: 'Backend Only',     layers: ['server', 'data', 'infra'], conns: ['data-flow'] },
+  frontend:{ label: 'Frontend Only',    layers: ['frontend', 'server'], conns: ['renders', 'http'] },
+  ai:      { label: 'AI + Data Flow',   layers: ['ai', 'server', 'data'], conns: ['api-call', 'data-flow'] },
+};
+
+const state = {
+  layers: {},
+  conns: {},
+  selected: null,
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+  preset: 'full',
+};
+
+Object.keys(LAYERS).forEach(k => state.layers[k] = true);
+Object.keys(CONN_TYPES).forEach(k => state.conns[k] = true);
+
+function initControls() {
+  const layerDiv = document.getElementById('layer-toggles');
+  Object.entries(LAYERS).forEach(([key, layer]) => {
+    const label = document.createElement('label');
+    label.className = 'layer-toggle';
+    label.innerHTML = `<input type="checkbox" checked data-layer="${key}">
+      <span class="layer-dot" style="background:${layer.stroke}"></span> ${layer.label}`;
+    label.querySelector('input').addEventListener('change', e => {
+      state.layers[key] = e.target.checked;
+      state.preset = null;
+      updatePresetButtons();
+      updateAll();
+    });
+    layerDiv.appendChild(label);
+  });
+
+  const connDiv = document.getElementById('connection-toggles');
+  Object.entries(CONN_TYPES).forEach(([key, conn]) => {
+    const label = document.createElement('label');
+    label.className = 'layer-toggle';
+    label.innerHTML = `<input type="checkbox" checked data-conn="${key}">
+      <span class="layer-dot" style="background:${conn.color}"></span> ${conn.label}`;
+    label.querySelector('input').addEventListener('change', e => {
+      state.conns[key] = e.target.checked;
+      state.preset = null;
+      updatePresetButtons();
+      updateAll();
+    });
+    connDiv.appendChild(label);
+  });
+
+  const legendDiv = document.getElementById('legend-items');
+  Object.entries(CONN_TYPES).forEach(([key, conn]) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.dataset.connType = key;
+    const dashStyle = conn.dash ? `stroke-dasharray:${conn.dash}` : '';
+    item.innerHTML = `<svg width="24" height="4"><line x1="0" y1="2" x2="24" y2="2" stroke="${conn.color}" stroke-width="2" ${dashStyle ? `style="${dashStyle}"` : ''}/></svg> ${conn.label}`;
+    legendDiv.appendChild(item);
+  });
+}
+
+function setPreset(name) {
+  const preset = PRESETS[name];
+  state.preset = name;
+
+  Object.keys(LAYERS).forEach(k => state.layers[k] = preset.layers.includes(k));
+  Object.keys(CONN_TYPES).forEach(k => state.conns[k] = preset.conns.includes(k));
+
+  document.querySelectorAll('[data-layer]').forEach(cb => cb.checked = state.layers[cb.dataset.layer]);
+  document.querySelectorAll('[data-conn]').forEach(cb => cb.checked = state.conns[cb.dataset.conn]);
+
+  updatePresetButtons();
+  document.getElementById('flow-label').textContent = preset.label;
+  updateAll();
+}
+
+function updatePresetButtons() {
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.onclick.toString().includes(`'${state.preset}'`));
+  });
+}
+
+function zoom(factor) {
+  state.zoom = Math.max(0.4, Math.min(2.5, state.zoom * factor));
+  updateAll();
+}
+
+function resetZoom() {
+  state.zoom = 1;
+  state.panX = 0;
+  state.panY = 0;
+  updateAll();
+}
+
+function getNodeCenter(node) {
+  return { x: node.x + node.w / 2, y: node.y + node.h / 2 };
+}
+
+function getConnectionPoints(fromNode, toNode) {
+  const fc = getNodeCenter(fromNode);
+  const tc = getNodeCenter(toNode);
+  const dx = tc.x - fc.x;
+  const dy = tc.y - fc.y;
+
+  let fx, fy, tx, ty;
+
+  if (Math.abs(dy) > Math.abs(dx) * 0.5) {
+    if (dy > 0) {
+      fx = fc.x; fy = fromNode.y + fromNode.h;
+      tx = tc.x; ty = toNode.y;
+    } else {
+      fx = fc.x; fy = fromNode.y;
+      tx = tc.x; ty = toNode.y + toNode.h;
+    }
+  } else {
+    if (dx > 0) {
+      fx = fromNode.x + fromNode.w; fy = fc.y;
+      tx = toNode.x; ty = tc.y;
+    } else {
+      fx = fromNode.x; fy = fc.y;
+      tx = toNode.x + toNode.w; ty = tc.y;
+    }
+  }
+
+  return { fx, fy, tx, ty };
+}
+
+function renderDiagram() {
+  const svg = document.getElementById('canvas');
+  const visibleNodes = nodes.filter(n => state.layers[n.layer]);
+  const visibleNodeIds = new Set(visibleNodes.map(n => n.id));
+  const visibleConns = connections.filter(c =>
+    state.conns[c.type] && visibleNodeIds.has(c.from) && visibleNodeIds.has(c.to)
+  );
+
+  const pad = 20;
+  const vbW = 880;
+  const vbH = 700;
+  const oX = (vbW / 2) * (1 - state.zoom) + state.panX;
+  const oY = (vbH / 2) * (1 - state.zoom) + state.panY;
+  svg.setAttribute('viewBox', `${-oX / state.zoom} ${-oY / state.zoom} ${vbW / state.zoom} ${vbH / state.zoom}`);
+
+  let html = '<defs>';
+  Object.entries(CONN_TYPES).forEach(([key, conn]) => {
+    html += `<marker id="arrow-${key}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="${conn.color}" opacity="0.8"/>
+    </marker>`;
+  });
+  html += '</defs>';
+
+  visibleConns.forEach(c => {
+    const fromNode = nodes.find(n => n.id === c.from);
+    const toNode = nodes.find(n => n.id === c.to);
+    if (!fromNode || !toNode) return;
+
+    const { fx, fy, tx, ty } = getConnectionPoints(fromNode, toNode);
+    const conn = CONN_TYPES[c.type];
+    const mx = (fx + tx) / 2;
+    const my = (fy + ty) / 2;
+
+    const cpx1 = fx + (mx - fx) * 0.1;
+    const cpy1 = fy + (my - fy) * 0.8;
+    const cpx2 = tx + (mx - tx) * 0.1;
+    const cpy2 = ty + (my - ty) * 0.8;
+
+    const dashAttr = conn.dash ? ` stroke-dasharray="${conn.dash}"` : '';
+    html += `<path d="M${fx},${fy} C${cpx1},${cpy1} ${cpx2},${cpy2} ${tx},${ty}"
+      fill="none" stroke="${conn.color}" stroke-width="1.5" opacity="0.5"
+      marker-end="url(#arrow-${c.type})"${dashAttr}/>`;
+
+    if (c.label) {
+      html += `<text x="${mx}" y="${my - 4}" fill="${conn.color}" font-size="8"
+        text-anchor="middle" opacity="0.7">${c.label}</text>`;
+    }
+  });
+
+  visibleNodes.forEach(n => {
+    const layer = LAYERS[n.layer];
+    const isSelected = state.selected === n.id;
+    const strokeW = isSelected ? 2.5 : 1;
+    const strokeColor = isSelected ? '#f59e0b' : layer.stroke;
+    const fillOpacity = isSelected ? '0.25' : '0.12';
+
+    html += `<g class="node" data-id="${n.id}" style="cursor:pointer" onclick="selectNode('${n.id}')">
+      <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="8"
+        fill="${layer.color}" fill-opacity="${fillOpacity}"
+        stroke="${strokeColor}" stroke-width="${strokeW}"/>
+      <text x="${n.x + n.w / 2}" y="${n.y + 20}" fill="#e0e0e0" font-size="12"
+        font-weight="600" text-anchor="middle">${n.label}</text>
+      <text x="${n.x + n.w / 2}" y="${n.y + 34}" fill="#888" font-size="9"
+        text-anchor="middle">${n.subtitle}</text>
+    </g>`;
+  });
+
+  svg.innerHTML = html;
+}
+
+function selectNode(id) {
+  state.selected = state.selected === id ? null : id;
+  updateAll();
+}
+
+function renderDetail() {
+  const panel = document.getElementById('detail-panel');
+  if (!state.selected) {
+    panel.classList.remove('visible');
+    return;
+  }
+
+  const node = nodes.find(n => n.id === state.selected);
+  if (!node) { panel.classList.remove('visible'); return; }
+
+  panel.classList.add('visible');
+  let html = `<h3>${node.label}</h3>
+    <div class="tech-role">${node.role}</div>
+    <div class="pro-con-section">
+      <div class="pro-con-title pro">Pros</div>
+      <ul>${node.pros.map(p => `<li class="pro">${p}</li>`).join('')}</ul>
+    </div>
+    <div class="pro-con-section">
+      <div class="pro-con-title con">Cons</div>
+      <ul>${node.cons.map(c => `<li class="con">${c}</li>`).join('')}</ul>
+    </div>`;
+  if (node.alt) html += `<div class="alt">${node.alt}</div>`;
+  panel.innerHTML = html;
+}
+
+function updatePrompt() {
+  const prompt = document.getElementById('prompt');
+  const visibleNodes = nodes.filter(n => state.layers[n.layer]);
+  const presetLabel = state.preset ? PRESETS[state.preset].label : 'custom view';
+
+  if (state.selected) {
+    const node = nodes.find(n => n.id === state.selected);
+    const prosStr = node.pros.map(p => `  - ${p}`).join('\n');
+    const consStr = node.cons.map(c => `  - ${c}`).join('\n');
+
+    prompt.textContent = `adhdaf tech stack — ${node.label} (${presetLabel} view)
+
+Role: ${node.role}
+
+Pros:
+${prosStr}
+
+Cons:
+${consStr}
+
+${node.alt || ''}
+
+Currently viewing ${visibleNodes.length} of ${nodes.length} technologies.`.trim();
+  } else {
+    const byLayer = {};
+    visibleNodes.forEach(n => {
+      const layerName = LAYERS[n.layer].label;
+      if (!byLayer[layerName]) byLayer[layerName] = [];
+      byLayer[layerName].push(n.label);
+    });
+
+    const summary = Object.entries(byLayer)
+      .map(([layer, techs]) => `${layer}: ${techs.join(', ')}`)
+      .join('\n');
+
+    prompt.textContent = `adhdaf tech stack (${presetLabel} view)\n\n${summary}\n\nClick a technology node for detailed pros, cons, and alternatives.`;
+  }
+}
+
+function copyPrompt() {
+  const text = document.getElementById('prompt').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function updateAll() {
+  renderDiagram();
+  renderDetail();
+  updatePrompt();
+
+  document.querySelectorAll('.legend-item').forEach(item => {
+    item.style.display = state.conns[item.dataset.connType] ? '' : 'none';
+  });
+}
+
+let isPanning = false, panStartX, panStartY;
+document.querySelector('.canvas-area').addEventListener('mousedown', e => {
+  if (e.target.closest('.node') || e.target.closest('.zoom-controls') || e.target.closest('.legend') || e.target.closest('.flow-label')) return;
+  isPanning = true;
+  panStartX = e.clientX;
+  panStartY = e.clientY;
+  e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!isPanning) return;
+  state.panX += (e.clientX - panStartX);
+  state.panY += (e.clientY - panStartY);
+  panStartX = e.clientX;
+  panStartY = e.clientY;
+  updateAll();
+});
+document.addEventListener('mouseup', () => isPanning = false);
+document.querySelector('.canvas-area').addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom(e.deltaY < 0 ? 1.1 : 0.9);
+}, { passive: false });
+
+initControls();
+updateAll();
+</script>
+</body>
+</html>

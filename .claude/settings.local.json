@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Skill(remember:remember)",
+      "Bash(uv run *)"
+    ]
+  },
   "enabledMcpjsonServers": [
     "supabase"
   ],

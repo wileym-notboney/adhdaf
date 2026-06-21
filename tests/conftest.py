@@ -1,3 +1,5 @@
+# ABOUTME: Shared test fixtures — in-memory SQLite database and async HTTP client.
+# ABOUTME: Overrides the real DB session so tests never touch disk.
 import os
 
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite://")

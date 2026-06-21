@@ -1,3 +1,5 @@
+# ABOUTME: Async SQLAlchemy engine, session factory, and migration runner.
+# ABOUTME: Applies .sql migration files on startup, tracks which have already run.
 from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine

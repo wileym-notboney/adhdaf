@@ -1,3 +1,5 @@
+# ABOUTME: Health check endpoint for monitoring and uptime checks.
+# ABOUTME: Returns app status and version — no auth required.
 from fastapi import APIRouter
 
 from adhdaf.schemas import HealthResponse

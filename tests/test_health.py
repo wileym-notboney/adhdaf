@@ -1,3 +1,5 @@
+# ABOUTME: Tests for the /health endpoint.
+# ABOUTME: Verifies the app responds with status and version.
 import pytest
 
 

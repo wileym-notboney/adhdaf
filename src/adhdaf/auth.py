@@ -1,3 +1,5 @@
+# ABOUTME: Bearer token authentication for API endpoints.
+# ABOUTME: Two tiers — capture token (for intake) and admin token (for management).
 from fastapi import Depends, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 

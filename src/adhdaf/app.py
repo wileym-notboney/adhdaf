@@ -1,3 +1,5 @@
+# ABOUTME: FastAPI application entry point with lifespan hook.
+# ABOUTME: Runs database migrations on startup and mounts all routers.
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
