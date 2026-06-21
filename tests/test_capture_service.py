@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from adhdaf.schemas import CaptureRequest
+from adhdaf.services.capture_service import save_capture
 
 
 def test_capture_request_strips_and_keeps_raw():
@@ -25,9 +26,6 @@ def test_capture_request_rejects_blank_raw():
 def test_capture_request_rejects_unknown_source():
     with pytest.raises(ValidationError):
         CaptureRequest(raw="buy milk", source="carrier-pigeon")
-
-
-from adhdaf.services.capture_service import save_capture
 
 
 @pytest.mark.asyncio
