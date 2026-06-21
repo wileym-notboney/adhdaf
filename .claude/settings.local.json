@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Skill(remember:remember)",
-      "Bash(uv run *)"
+      "Bash(uv run *)",
+      "Bash(echo \"---EXIT:$?\")",
+      "Bash(npx --version)",
+      "Bash(claude mcp *)",
+      "Bash(git checkout *)",
+      "Bash($SKILL/scripts/review-package 0c34112 *)",
+      "Bash($SKILL/scripts/review-package 0e21ae9 *)",
+      "Bash(/Users/skeletor/.claude/plugins/cache/claude-plugins-official/superpowers/896224c4b187/skills/subagent-driven-development/scripts/review-package 4b04808 2bdf5c1)",
+      "Bash($SKILL/scripts/review-package 2bdf5c1 *)",
+      "Bash($SKILL/scripts/review-package c9994e3 *)",
+      "Bash(git pull *)",
+      "Bash(git branch *)"
     ]
   },
   "enabledMcpjsonServers": [

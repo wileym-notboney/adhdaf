@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'git commit'; then cd /Users/skeletor/DEV/claude-apps/adhdaf && uv run pytest -q 2>&1 | tail -5; fi; true",
+            "statusMessage": "Running pytest before commit"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATH\" | grep -q '\\.py$'; then uv run ruff format \"$CLAUDE_FILE_PATH\" 2>/dev/null; uv run ruff check --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null; fi; true"
+          }
+        ]
+      }
+    ]
+  }
+}
